@@ -18,7 +18,7 @@
     <script>
         var quillContainer = null;
 
-        function initQuill(id, data, placeholder, toolbar) {
+        function initQuill(id, parent_property, placeholder, toolbar) {
             var content = null;
             var init = true;
 
@@ -108,6 +108,11 @@
             content.root.innerHTML = data;
 
             // on content change
+            // we cannot get parent here (I guess that is the reason why this is not allowed to run during init)
+            // question is if we can get 'content' variable from here in Livewire.hook below...
+            // I also worry about proper cleanup
+            // content here is not referenced outside, so there has to be some hidden reference of it risks garbage collection, right?
+            // but if we remove the livewire-quill component, will the content be removed?
             content.on("text-change", function(delta, oldDelta, source) {
                 if (init) {
                     return;
@@ -119,10 +124,11 @@
                 // set a timeout to see if the user is still typing
                 quillContainer = setTimeout(function() {
                     // set the content to the model
-                    @this.dispatch('contentChanged', {
-                        editorId: content.container.id,
-                        content: content.root.innerHTML
-                    })
+                    //@this.dispatch('contentChanged', {
+                    //    editorId: content.container.id,
+                    //    content: content.root.innerHTML
+                    //})
+                    @this.parent.$wire.set(parent_property, content.root.innerHTML);
                 }, 500);
             });
 
@@ -135,9 +141,23 @@
             var quillContainer = document.getElementById(event.quillId);
 
             if (!quillContainer.dataset.initialized) {
-                initQuill(event.quillId, event.data, event.placeholder, event.toolbar);
+                initQuill(event.quillId, event.parent_property, event.placeholder, event.toolbar);
                 quillContainer.dataset.initialized = true;
             }
+        });
+
+        window.Livewire.hook('component.init', ({ component, cleanup }) => {
+             console.log("JA component.init", component, cleanup);
+            //todo: frankly we might want to move the content.on('text-change') here, since we might avoid the if (init) check there, the component is ready here
+             if (component.name == 'livewire-quill')
+             {
+                 console.log("JA: quill found", component.canonical.quillId);
+
+                 component.parent.$wire.watch("text", (value, old) => {
+                    console.log("JA watch text from parent", value, old);
+                    content.root.innerHTML = value;  // todo: problem here is how to get content and how to destroy when needed, we cannot leave it around, that would cause memory leaks
+                });
+             }
         });
     </script>
     @endscript
