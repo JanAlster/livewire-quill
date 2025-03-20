@@ -7,6 +7,12 @@
 
 ---
 
+JA changes:
+- original concept initializes the editor during first render and will not allow changing content from server after
+- I want to enable this so that I can reuse the editor changing parent component data
+- original was not working for me nicely in Livewire 3, but it helps if @script and @endscript directives are added
+
+---
 This package adds an easy to use Livewire component to your application, which will create and largely manage a [Quill]([Quill](https://quilljs.com/)) editor for you.
 
 It supports image uploads out of the box with zero work from you.
