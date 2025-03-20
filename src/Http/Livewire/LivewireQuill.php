@@ -5,6 +5,7 @@ namespace Joelwmale\LivewireQuill\Http\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Locked;
 
 class LivewireQuill extends Component
 {
@@ -13,8 +14,11 @@ class LivewireQuill extends Component
     public $rendered = false;
 
     // configurable
+    #[Locked]
     public $quillId;
-    public $data;
+    #[Locked]
+    public $parent_property;
+    
     public $classes;
     public $toolbar;
     public $placeholder;
@@ -28,14 +32,14 @@ class LivewireQuill extends Component
 
     public function mount(
         $quillId,
-        $data = null,
+        $parent_property,
         $placeholder = null,
         $classes = '',
         $toolbar = [],
         $mergeToolbar = true
     ) {
         $this->quillId = $quillId;
-        $this->data = $data;
+        $this->parent_property = $parent_property;
         $this->placeholder = $placeholder;
         $this->classes = $classes;
         $this->toolbar = $mergeToolbar ? array_merge(
@@ -72,7 +76,7 @@ class LivewireQuill extends Component
         if (! $this->rendered) {
             $this->dispatch('livewire-quill:init', [
                 'quillId' => $this->quillId,
-                'data' => $this->data,
+                'parent_property' => $this->parent_property,
                 'placeholder' => $this->placeholder,
                 'classes' => $this->classes,
                 'toolbar' => $this->toolbar,
