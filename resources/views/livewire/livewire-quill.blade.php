@@ -1,4 +1,4 @@
-<div wire:ignore>
+<div wire:ignore>  {{-- Since I am changing things, do allow wrapper_class here, it might make styling easier. --}}
     <div
         id="{{ $quillId }}"
         class="{{ $classes }} {{ config('livewire-quill.editor_classes') }} livewire-quill"
